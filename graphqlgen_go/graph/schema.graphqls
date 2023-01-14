@@ -1,0 +1,31 @@
+type Employee {
+  id: ID!
+  name: String!
+  age: Int!
+  salary: Int!
+  dept: Department!
+}
+
+type Department {
+  id: ID!
+  deptName: String!
+  team: String!
+}
+
+input NewEmployee {
+  name: String!
+  age: Int!
+  salary: Int!
+}
+
+input NewDepartment {
+  id: ID!
+  deptName: String!
+}
+
+type Mutation {
+  createEmployee(input: NewEmployee!): Employee!
+  createDepartment(input: NewDepartment!): Department!
+  updateEmployee(id: ID!, input: NewEmployee!): Employee!
+  deleteEmployee(id: ID!): Employee!
+}
