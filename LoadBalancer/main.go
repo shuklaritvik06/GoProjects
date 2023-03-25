@@ -28,7 +28,6 @@ func (s *simpleServer) Serve(w http.ResponseWriter, r *http.Request) {
 
 func newSimpleServer(addr string) *simpleServer {
 	serverUrl, _ := url.Parse(addr)
-
 	return &simpleServer{
 		addr:  addr,
 		proxy: httputil.NewSingleHostReverseProxy(serverUrl),
@@ -64,6 +63,7 @@ func (lb *LoadBalancer) serveProxy(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Forwarding %q\n", targetServer.Address())
 	targetServer.Serve(w, r)
 }
+
 func main() {
 	servers := []Server{
 		newSimpleServer("https://www.facebook.com"),
@@ -75,9 +75,7 @@ func main() {
 	handleRedirect := func(rw http.ResponseWriter, req *http.Request) {
 		lb.serveProxy(rw, req)
 	}
-
 	http.HandleFunc("/", handleRedirect)
-
 	fmt.Printf("serving requests at 'localhost:%s'\n", lb.port)
 	http.ListenAndServe(":"+lb.port, nil)
 }
