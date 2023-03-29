@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"compress/gzip"
-	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/shuklaritvik06/GoProjects/filecompress/backend/utils"
@@ -52,17 +53,34 @@ func Compress(w http.ResponseWriter, r *http.Request) {
 	p := gzip.NewWriter(compress)
 	p.Write(data)
 	p.Close()
-	compressed_data, _ := os.ReadFile(strings.Split(compress.Name(), "/")[2])
+	file, _ := filepath.Abs("./compressed/" + strings.Split(compress.Name(), "/")[2])
+	compressed_data, _ := os.ReadFile(file)
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Write(compressed_data)
 }
 
 func Decompress(w http.ResponseWriter, r *http.Request) {
-	UploadFile(r)
-	w.Header().Set("Content-Type", "application/json")
+	name := UploadFile(r)
+	os.Chdir("./uploads")
+	file, _ := os.Open(strings.Split(name, "/")[2])
+	defer file.Close()
+	reader, _ := gzip.NewReader(file)
+	defer reader.Close()
+	newfile := strings.Split(strings.Split(name, "/")[2], ".")[1]
+	os.Chdir("..")
+	if result, _ := utils.Exists("./decompressed"); result == false {
+		os.Mkdir("./decompressed", 0755)
+	}
+	decompressed_file, _ := ioutil.TempFile("./decompressed", "*"+newfile)
+	defer decompressed_file.Close()
+	_, err := io.Copy(decompressed_file, reader)
+	if err != nil {
+		fmt.Println(err)
+	}
+	abspath, _ := filepath.Abs("./decompressed/" + strings.Split(decompressed_file.Name(), "/")[2])
+	absfiledata, _ := os.ReadFile(abspath)
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "File Uploaded Successfully",
-	})
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Write(absfiledata)
 }
