@@ -1,0 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.btn {
+  border: none;
+  background: transparent;
+  padding: 5px;
+  margin: 5px;
+}
+
+.btn-success {
+  background-color: green;
+  color: white;
+}

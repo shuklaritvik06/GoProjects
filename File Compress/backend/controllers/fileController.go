@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -41,6 +42,13 @@ func UploadFile(r *http.Request) string {
 }
 
 func Compress(w http.ResponseWriter, r *http.Request) {
+	if !utils.CheckAuthenticated(w, r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Unauthorized",
+		})
+		return
+	}
 	name := UploadFile(r)
 	os.Chdir("./uploads")
 	data, _ := os.ReadFile(strings.Split(name, "/")[2])
@@ -61,6 +69,13 @@ func Compress(w http.ResponseWriter, r *http.Request) {
 }
 
 func Decompress(w http.ResponseWriter, r *http.Request) {
+	if !utils.CheckAuthenticated(w, r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Unauthorized",
+		})
+		return
+	}
 	name := UploadFile(r)
 	os.Chdir("./uploads")
 	file, _ := os.Open(strings.Split(name, "/")[2])

@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -17,14 +16,11 @@ type SignedDetails struct {
 	jwt.StandardClaims
 }
 
-func CheckAuthenticated(w http.ResponseWriter, r *http.Request) {
+func CheckAuthenticated(w http.ResponseWriter, r *http.Request) bool {
 	if r.Header.Get("Authorization") == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{
-			"message": "Unauthorized",
-		})
-		return
+		return false
 	}
+	return true
 }
 
 func GetTokens(firstname, lastname, username string) (string, string, error) {

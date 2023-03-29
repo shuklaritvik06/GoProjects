@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/shuklaritvik06/GoProjects/filecompress/backend/config"
 	"github.com/shuklaritvik06/GoProjects/filecompress/backend/routes"
 )
@@ -12,8 +13,12 @@ import (
 func main() {
 	config.Configure()
 	router := mux.NewRouter()
-	router.PathPrefix("/api/v1")
 	routes.AuthRoutes(router)
 	routes.FileRoutes(router)
-	http.ListenAndServe(":"+os.Getenv("PORT"), router)
+	c := cors.New(cors.Options{
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"*"},
+	})
+	handler := c.Handler(router)
+	http.ListenAndServe(":"+os.Getenv("PORT"), handler)
 }
